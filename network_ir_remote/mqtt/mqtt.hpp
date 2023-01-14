@@ -30,7 +30,7 @@ namespace mqtt
         
         long code = strtol(reinterpret_cast<char*>(buf), NULL, 16);
         Serial.println(code);
-        ir_sender::send(code)
+        ir_sender::send(code);
     }
 
     bool init() {
