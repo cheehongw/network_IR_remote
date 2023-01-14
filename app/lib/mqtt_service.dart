@@ -38,14 +38,42 @@ class MqttService {
         client: client);
   }
 
-  void send(int code) {
+  void prepareMqttClient() async {
+    await _connectClient();
+  }
+
+  Future<void> _connectClient() async {
+    try {
+      print('client connecting....');
+      await client.connect(user, password);
+    } on Exception catch (e) {
+      print('client exception - $e');
+      client.disconnect();
+    }
+
+    // when connected, print a confirmation, else print an error
+    if (client.connectionStatus?.state == MqttConnectionState.connected) {
+      print('client connected');
+    } else {
+      print(
+          'ERROR client connection failed - disconnecting, status is ${client.connectionStatus}');
+      client.disconnect();
+    }
+  }
+
+  Future<void> send(int code) async {
     final builder = MqttClientPayloadBuilder();
     builder.addString(code.toRadixString(16));
-    client.publishMessage(topic, MqttQos.exactlyOnce, builder.payload!);
+
+    while (client.connectionStatus?.state != MqttConnectionState.connected) {
+      await _connectClient();
+    }
+
+    client.publishMessage(topic, MqttQos.atMostOnce, builder.payload!);
   }
 
   static void _onDisconnected() {
-    print('OnDisconnected client callback - Client disconnection');
+    print('OnDisconnected client callback - Client disconnected');
   }
 
   static void _onConnected() {

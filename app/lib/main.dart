@@ -1,6 +1,7 @@
 import 'package:app/components/send_button.dart';
 import 'package:app/mqtt_service.dart';
 import 'package:flutter/material.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'MQTT IR Remote'),
     );
   }
 }
@@ -50,12 +51,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  MqttService mqttClient = MqttService.initWith(
+  late MqttService mqttClient;
+
+  @override
+  void initState() {
+    super.initState();
+    mqttClient = MqttService.initWith(
       '972890f6d60643c99e457ffb53a0b775.s1.eu.hivemq.cloud',
       'chwong',
       'cegPB4GPDT!X9yC',
       8883,
       'IRCODE');
+    mqttClient.prepareMqttClient();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +86,9 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisCount: 2,
           children: [
             SendButton(
-                sendCode: 0x45, buttonFunction: "On", mqttclient: mqttClient)
+                sendCode: 0x45, buttonFunction: "On", mqttclient: mqttClient),
+            SendButton(
+                sendCode: 0x47, buttonFunction: "Off", mqttclient: mqttClient)
           ],
         )));
   }

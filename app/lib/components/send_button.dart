@@ -9,8 +9,8 @@ class SendButton extends StatelessWidget {
   const SendButton(
       {super.key, required this.sendCode, required this.buttonFunction, required this.mqttclient});
 
-  void onClick() {
-    mqttclient.send(sendCode);
+  void onClick() async {
+    await mqttclient.send(sendCode);
   }
 
   @override
